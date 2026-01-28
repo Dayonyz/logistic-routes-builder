@@ -27,11 +27,11 @@ class DailyRouteTypesGenerator
     private function setRouteLevels(int $daysCount): void
     {
         $this->blyTypeMinCount = (int)round(
-            (RouteTypesEnum::BLY->getOdds()/RouteTypesEnum::getOddsSum())*$daysCount*0.7
+            (RouteTypesEnum::BLY->getOdds()/RouteTypesEnum::getOddsSum())*$daysCount*0.88
         );
 
         $this->lozTypeMinCount = (int)round(
-            (RouteTypesEnum::LOZ->getOdds()/RouteTypesEnum::getOddsSum())*$daysCount*0.7
+            (RouteTypesEnum::LOZ->getOdds()/RouteTypesEnum::getOddsSum())*$daysCount*0.88
         );
 
         $this->sumBlyAndLozTypesMinCount = round((RouteTypesEnum::BLY->getOdds()/RouteTypesEnum::getOddsSum()*$daysCount +

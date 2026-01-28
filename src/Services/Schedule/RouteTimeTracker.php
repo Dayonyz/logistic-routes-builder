@@ -144,7 +144,7 @@ class RouteTimeTracker
     /**
      * @throws Exception
      */
-    public function calculateMovingTime(array $distanceMatrix): static
+    public function calculateMovingTime(array $distanceMatrix): void
     {
         $movingTime = 0;
 
@@ -159,8 +159,6 @@ class RouteTimeTracker
         }
 
         $this->endMovingTime = $this->startMovingTime->add(new DateInterval('PT' . $movingTime . 'M'));
-
-        return $this;
     }
 
     public function setDestinations(DestinationsEnum $from, DestinationsEnum $to): void
@@ -172,30 +170,22 @@ class RouteTimeTracker
     /**
      * @throws Exception
      */
-    public function generateNextStartMovingTime(): static
+    public function generateNextStartMovingTime(): void
     {
         $this->previousEndMovingTime = clone $this->endMovingTime;
 
         if ($this->from === DestinationsEnum::ZLP && $this->to === DestinationsEnum::ZLP) {
             $this->startMovingTime = clone $this->endMovingTime;
-
-            return $this;
         }
 
         if ($this->from !== DestinationsEnum::ZLP && $this->to === DestinationsEnum::ZLP) {
             $this->startMovingTime = clone $this->endMovingTime;
-
-            return $this;
         }
 
         if ($this->from !== DestinationsEnum::LOZ && $this->to === DestinationsEnum::LOZ) {
             $this->startMovingTime = clone $this->endMovingTime;
-
-            return $this;
         }
 
         $this->startMovingTime = clone $this->endMovingTime->add($this->generateBetweenMovingInterval());
-
-        return $this;
     }
 }
