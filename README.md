@@ -182,7 +182,8 @@ Zlatopil - Zlatopil        Departure at: 13:00   Arrival at: 13:05   Distance (k
 
 ## Notes
 
-⚠️ Legal disclaimer
+⚠️ Legal disclaimer!
+
 This application must not be used for illegal activities, fraud, or falsification of reports.
 All legal and criminal responsibility lies solely with the user.
 
