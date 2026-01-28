@@ -8,7 +8,7 @@ use IteratorAggregate;
 use Src\Enums\RouteTypesEnum;
 use Traversable;
 
-final class RouteCollection implements IteratorAggregate
+class RouteCollection implements IteratorAggregate
 {
     /** @var RouteDestinationCollection[] $items */
     private array $items = [];

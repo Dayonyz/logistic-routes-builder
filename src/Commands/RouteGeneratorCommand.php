@@ -38,7 +38,7 @@ class RouteGeneratorCommand extends Command
 
         $output->writeln("Wait a little, detecting fuel limits...");
 
-        $fuelLimits = FuelLimitsCalculator::forDays($daysCount);
+        $fuelLimits = (new FuelLimitsCalculator)->forDays($daysCount);
 
         $monthlyFuelConsumption = 0;
 
@@ -85,6 +85,7 @@ class RouteGeneratorCommand extends Command
                 $dailyReports = [];
                 $routes = DailyRouteGenerator::generateRoutes($daysCount);
                 $distanceCalculator = new DistanceCalculator();
+                $routeFuelCalculator = new RouteFuelCalculator();
 
                 /**
                  * @var RouteDestinationCollection $route
@@ -92,7 +93,7 @@ class RouteGeneratorCommand extends Command
                 foreach ($routes->getIterator() as $route) {
                     $timeTracker = new RouteTimeTracker($goodWeatherPercent);
                     $dailyReports[] = DailyRouteReportBuilder::build($route, $timeTracker);
-                    $totalFuel += RouteFuelCalculator::getFuelByRoute($route);
+                    $totalFuel += $routeFuelCalculator->getFuelByRoute($route);
                     $totalDistance += $distanceCalculator->getDistanceBetweenDestinations(...$route->toArray());
                 }
 

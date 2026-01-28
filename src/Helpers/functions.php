@@ -3,6 +3,8 @@
 /**
  * Permutations of length $n from $items (order matters), without repetitions.
  * Iterates over a given sequence (array of values).
+ * @param array<int, mixed> $items
+ * @return Generator<int, array<int, mixed>>
  */
 
 function arrangementsNoRepeat(array $items, int $n): Generator

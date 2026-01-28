@@ -19,6 +19,8 @@ class DailyRouteReportBuilder
     {
         $routeLegs = [];
         $distanceCalculator = new DistanceCalculator();
+        $routeFuelCalculator = new RouteFuelCalculator();
+
         $routeType = $destinations->getRouteType();
         $destinations = $destinations->toArray();
 
@@ -34,7 +36,7 @@ class DailyRouteReportBuilder
             $from = $destinations[$i];
             $to = $destinations[$i+1];
             $timeTracker->setDestinations($from, $to);
-            $fuel = RouteFuelCalculator::getFuelBetweenDestinations($from, $to);
+            $fuel = $routeFuelCalculator->getFuelBetweenDestinations($from, $to);
             $departureAt = $timeTracker->getStartMovingTime();
             $timeTracker->calculateMovingTime($distanceMatrixCell);
             $arrivalAt = $timeTracker->getEndMovingTime();

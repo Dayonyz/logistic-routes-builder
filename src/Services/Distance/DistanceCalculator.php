@@ -6,12 +6,12 @@ use JsonException;
 use RuntimeException;
 use Src\Enums\DestinationsEnum;
 
-final class DistanceCalculator
+class DistanceCalculator
 {
     private array $matrix;
 
     /**
-     * @throws JsonException
+     * @throws JsonException|RuntimeException
      */
     public function __construct(?string $path = null)
     {
@@ -36,6 +36,10 @@ final class DistanceCalculator
 
     public function getDistanceBetweenDestinations(DestinationsEnum ...$destinations): int
     {
+        if (count($destinations) < 2) {
+            throw new RuntimeException('Need at least 2 destinations to calculate distance.');
+        }
+
         $distance = 0;
 
         for ($i = 0; $i < count($destinations) - 1; $i++) {
@@ -48,7 +52,7 @@ final class DistanceCalculator
     }
 
     /**
-     * @throws JsonException
+     * @throws JsonException|RuntimeException
      */
     private static function loadJson(string $path): array
     {

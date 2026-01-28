@@ -9,7 +9,7 @@ use Src\Enums\DestinationsEnum;
 use Src\Enums\RouteTypesEnum;
 use Traversable;
 
-final class RouteDestinationCollection implements IteratorAggregate
+class RouteDestinationCollection implements IteratorAggregate
 {
     /** @var DestinationsEnum[] */
     private array $items = [];

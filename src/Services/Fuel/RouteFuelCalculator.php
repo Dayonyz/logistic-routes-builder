@@ -15,14 +15,21 @@ class RouteFuelCalculator
         'b' => 0.089*1.15,
     ];
 
-    public static function getFuelByRoute(RouteDestinationCollection $route): int | float
+    private DistanceCalculator $distanceCalculator;
+
+    public function __construct(?DistanceCalculator $distanceCalculator = null)
+    {
+        $this->distanceCalculator = $distanceCalculator ?? new DistanceCalculator();
+    }
+
+    public function getFuelByRoute(RouteDestinationCollection $route): int | float
     {
         $destinations = $route->toArray();
         $totalFuel = 0.0;
         $count = count($destinations);
 
         for ($i = 0; $i < $count - 1; $i++) {
-            $totalFuel += static::getFuelBetweenDestinations(
+            $totalFuel += $this->getFuelBetweenDestinations(
                 $destinations[$i],
                 $destinations[$i + 1]
             );
@@ -31,9 +38,9 @@ class RouteFuelCalculator
         return (int) round($totalFuel);
     }
 
-    public static function getFuelBetweenDestinations(DestinationsEnum $from, DestinationsEnum $to): float
+    public function getFuelBetweenDestinations(DestinationsEnum $from, DestinationsEnum $to): float
     {
-        $distanceCell = (new DistanceCalculator())->getDistanceMatrixCellBetweenDestinations($from, $to);
+        $distanceCell = $this->distanceCalculator->getDistanceMatrixCellBetweenDestinations($from, $to);
 
         // Inside city movement
         if ($from === $to && in_array($from, [DestinationsEnum::ZLP, DestinationsEnum::LOZ], true)) {
