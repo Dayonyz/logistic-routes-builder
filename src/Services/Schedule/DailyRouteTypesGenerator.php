@@ -43,6 +43,7 @@ class DailyRouteTypesGenerator
 
     public function generateSchedule(int $daysCount, $scipRestrictions = false): array
     {
+        $this->resetRouteTypesCounters();
         $this->setRouteLevels($daysCount);
 
         $routeTypes = [];

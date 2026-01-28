@@ -38,6 +38,7 @@ class RouteGeneratorCommand extends Command
 
         $output->writeln("Wait a little, detecting fuel limits...");
 
+
         $fuelLimits = (new FuelLimitsCalculator)->forDays($daysCount);
 
         $monthlyFuelConsumption = 0;
@@ -71,6 +72,7 @@ class RouteGeneratorCommand extends Command
         $totalFuel = 0;
         $totalDistance = 0;
         $dailyReports = [];
+        $dailyRouteGenerator = new DailyRouteGenerator();
 
         while (
             round($totalFuel / self::PRECISION_DIVISOR) <
@@ -81,9 +83,8 @@ class RouteGeneratorCommand extends Command
             try {
                 $totalFuel = 0;
                 $totalDistance = 0;
-
                 $dailyReports = [];
-                $routes = DailyRouteGenerator::generateRoutes($daysCount);
+                $routes = $dailyRouteGenerator->generateRoutes($daysCount);
                 $distanceCalculator = new DistanceCalculator();
                 $routeFuelCalculator = new RouteFuelCalculator();
 

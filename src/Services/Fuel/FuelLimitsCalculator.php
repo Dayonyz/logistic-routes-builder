@@ -3,7 +3,6 @@
 namespace Src\Services\Fuel;
 
 use Exception;
-use Src\Services\Distance\DistanceCalculator;
 use Src\Services\Fuel\Dto\FuelLimitsDto;
 use Src\Services\Routing\Collections\RouteDestinationCollection;
 use Src\Services\Schedule\DailyRouteGenerator;
@@ -11,10 +10,14 @@ use Src\Services\Schedule\DailyRouteGenerator;
 class FuelLimitsCalculator
 {
     private RouteFuelCalculator $routeFuelCalculator;
+    private DailyRouteGenerator $dailyRouteGenerator;
 
-    public function __construct(?RouteFuelCalculator $routeFuelCalculator = null)
-    {
-        $this->routeFuelCalculator = $routeFuelCalculator ?? new RouteFuelCalculator(new DistanceCalculator());
+    public function __construct(
+        ?RouteFuelCalculator $routeFuelCalculator = null,
+        ?DailyRouteGenerator $dailyRouteGenerator = null
+    ) {
+        $this->routeFuelCalculator = $routeFuelCalculator ?? new RouteFuelCalculator();
+        $this->dailyRouteGenerator = $dailyRouteGenerator ?? new DailyRouteGenerator();
     }
 
     public function forDays(int $daysCount, int $iterationCount = 150): FuelLimitsDto
@@ -25,7 +28,8 @@ class FuelLimitsCalculator
             try {
                 $totalFuel = 0;
 
-                $routes = DailyRouteGenerator::generateRoutes($daysCount, true);
+                $routes = $this->dailyRouteGenerator->generateRoutes($daysCount, true);
+
                 /**
                  * @var RouteDestinationCollection $route
                  */

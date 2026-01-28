@@ -7,12 +7,19 @@ use Src\Services\Routing\Collections\RouteCollection;
 
 class DailyRouteGenerator
 {
+    private DailyRouteTypesGenerator $routeTypesGenerator;
+
+    public function __construct(?DailyRouteTypesGenerator $routeTypesGenerator = null)
+    {
+        $this->routeTypesGenerator = $routeTypesGenerator ?? new DailyRouteTypesGenerator();
+    }
+
     /**
      * @throws Exception
      */
-    public static function generateRoutes(int $daysCount, $scipRestrictions = false): RouteCollection
+    public function generateRoutes(int $daysCount, $scipRestrictions = false): RouteCollection
     {
-        $routeTypes = (new DailyRouteTypesGenerator())->generateSchedule($daysCount, $scipRestrictions);
+        $routeTypes = $this->routeTypesGenerator->generateSchedule($daysCount, $scipRestrictions);
 
         $prevRoute = null;
         $routeCollection = new RouteCollection();
