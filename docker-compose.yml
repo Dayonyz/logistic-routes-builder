@@ -1,0 +1,17 @@
+services:
+    php:
+        tty: true
+        platform: linux/x86_64
+        container_name: "${DOCKER_APP_SLUG}-php"
+        build:
+            context: ./
+            dockerfile: .docker/php/Dockerfile
+            args:
+                - USER_DOCKER_ID=${DOCKER_USER_ID}
+                - GROUP_DOCKER_ID=${DOCKER_GROUP_ID}
+                - PROJECT_PATH=${DOCKER_CODE_FOLDER}
+        user: "${DOCKER_USER_ID}:${DOCKER_GROUP_ID}"
+        volumes:
+            - ./:${DOCKER_CODE_FOLDER}:delegated
+        environment:
+            PHP_IDE_CONFIG: 'serverName=${DOCKER_SERVER_NAME}'

@@ -1,0 +1,9 @@
+.DS_Store
+/.phpunit.cache
+/vendor
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+/.idea
+/.vscode
