@@ -87,13 +87,14 @@ class RouteGeneratorCommand extends Command
                 $routes = $dailyRouteGenerator->generateRoutes($daysCount);
                 $distanceCalculator = new DistanceCalculator();
                 $routeFuelCalculator = new RouteFuelCalculator();
+                $dailyRouteReportBuilder = new DailyRouteReportBuilder();
 
                 /**
                  * @var RouteDestinationCollection $route
                  */
                 foreach ($routes->getIterator() as $route) {
                     $timeTracker = new RouteTimeTracker($goodWeatherPercent);
-                    $dailyReports[] = DailyRouteReportBuilder::build($route, $timeTracker);
+                    $dailyReports[] = $dailyRouteReportBuilder->build($route, $timeTracker);
                     $totalFuel += $routeFuelCalculator->getFuelByRoute($route);
                     $totalDistance += $distanceCalculator->getDistanceBetweenDestinations(...$route->toArray());
                 }
