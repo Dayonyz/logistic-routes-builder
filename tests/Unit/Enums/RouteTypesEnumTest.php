@@ -4,28 +4,79 @@ namespace Tests\Unit\Enums;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
+use Src\Enums\DestinationsEnum;
 use Src\Enums\RouteTypesEnum;
 
 class RouteTypesEnumTest extends TestCase
 {
-    public function testOddsSum(): void
+    public function testTitles(): void
     {
-        $expected = 0;
+        $this->assertSame(
+            'Route type - VILLAGES',
+            RouteTypesEnum::VIL->title()
+        );
 
-        foreach (RouteTypesEnum::cases() as $case) {
-            $expected += $case->getOdds();
-        }
+        $this->assertSame(
+            'Route type - LOZOVA',
+            RouteTypesEnum::LOZ->title()
+        );
 
-        $this->assertSame($expected, RouteTypesEnum::getOddsSum());
+        $this->assertSame(
+            'Route type - BLYZNIUKY',
+            RouteTypesEnum::BLY->title()
+        );
     }
 
-    public function testDestinationsCountIsPositive(): void
+    public function testGetOdds(): void
     {
-        foreach (RouteTypesEnum::cases() as $case) {
-            $this->assertGreaterThan(
-                0,
-                $case->getDestinationsCount(),
-                "{$case->name} has invalid destinations count"
+        $this->assertSame(34, RouteTypesEnum::VIL->getOdds());
+        $this->assertSame(9, RouteTypesEnum::LOZ->getOdds());
+        $this->assertSame(9, RouteTypesEnum::BLY->getOdds());
+    }
+
+    public function testOddsSum(): void
+    {
+        $this->assertSame(
+            34 + 9 + 9,
+            RouteTypesEnum::getOddsSum()
+        );
+    }
+
+    public function testGetDestinationsForVil(): void
+    {
+        $destinations = RouteTypesEnum::VIL->getDestinations();
+
+        $this->assertNotContains(DestinationsEnum::LOZ, $destinations);
+        $this->assertNotContains(DestinationsEnum::BLY, $destinations);
+
+        // Проверяем, что это именно DestinationsEnum
+        foreach ($destinations as $destination) {
+            $this->assertInstanceOf(DestinationsEnum::class, $destination);
+        }
+    }
+
+    public function testGetDestinationsForLoz(): void
+    {
+        $destinations = RouteTypesEnum::LOZ->getDestinations();
+
+        $this->assertNotContains(DestinationsEnum::BLY, $destinations);
+        $this->assertContains(DestinationsEnum::LOZ, $destinations);
+    }
+
+    public function testGetDestinationsForBly(): void
+    {
+        $destinations = RouteTypesEnum::BLY->getDestinations();
+
+        $this->assertNotContains(DestinationsEnum::LOZ, $destinations);
+        $this->assertContains(DestinationsEnum::BLY, $destinations);
+    }
+
+    public function testDestinationsCountMatchesActual(): void
+    {
+        foreach (RouteTypesEnum::cases() as $type) {
+            $this->assertSame(
+                count($type->getDestinations()),
+                $type->getDestinationsCount()
             );
         }
     }
@@ -33,11 +84,14 @@ class RouteTypesEnumTest extends TestCase
     /**
      * @throws Exception
      */
-    public function testGetRandomTypeReturnsEnum(): void
+    public function testRandomTypeAlwaysReturnsEnum(): void
     {
-        $type = RouteTypesEnum::getRandomType();
+        // гоняем много раз — проверяем стабильность
+        for ($i = 0; $i < 100; $i++) {
+            $type = RouteTypesEnum::getRandomType();
 
-        $this->assertInstanceOf(RouteTypesEnum::class, $type);
+            $this->assertInstanceOf(RouteTypesEnum::class, $type);
+        }
     }
 
     /**

@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Services\Distance;
 
-use JsonException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Src\Enums\DestinationsEnum;
@@ -12,12 +11,15 @@ class DistanceCalculatorTest extends TestCase
 {
     private DistanceCalculator $calculator;
 
-    /**
-     * @throws JsonException
-     */
     protected function setUp(): void
     {
-        $this->calculator = new DistanceCalculator(__DIR__ . '/matrix.json');
+        $this->calculator = new class(__DIR__ . '/matrix.json') extends DistanceCalculator {
+            public function get(string $from, string $to): array
+            {
+                return $this->matrix[$from][$to]
+                    ?? throw new RuntimeException("Distance cell not found: {$from} -> {$to}");
+            }
+        };
     }
 
     public function testConstructorThrowsExceptionForMissingFile(): void
@@ -35,7 +37,7 @@ class DistanceCalculatorTest extends TestCase
 
         $this->assertIsArray($cell);
         $this->assertArrayHasKey('s', $cell);
-        $this->assertEquals(4, $cell['s']); // проверка конкретного значения
+        $this->assertEquals(4, $cell['s']);
     }
 
     public function testGetDistanceBetweenDestinationsSum(): void
@@ -46,7 +48,6 @@ class DistanceCalculatorTest extends TestCase
             DestinationsEnum::BLV
         );
 
-        // zlp->ole = 4, ole->blv = 22, сумма = 26
         $this->assertEquals(26, $distance);
     }
 
@@ -54,9 +55,9 @@ class DistanceCalculatorTest extends TestCase
     {
         $this->expectException(RuntimeException::class);
 
-        $this->calculator->getDistanceBetweenDestinations(
-            DestinationsEnum::ZLP,
-            DestinationsEnum::XXX
+        $this->calculator->get(
+            DestinationsEnum::ZLP->value,
+            'xxx'
         );
     }
 

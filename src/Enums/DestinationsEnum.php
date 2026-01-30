@@ -23,8 +23,6 @@ enum DestinationsEnum: string
     case SHU = 'shu'; // Шульське
     case NBR = 'nbr'; // Новоберецьке
 
-    case XXX = 'xxx'; //Test
-
     public function title(): string
     {
         return match ($this) {
@@ -46,14 +44,12 @@ enum DestinationsEnum: string
             self::BLY => 'Blyzniuky',
             self::SHU => 'Shulske',
             self::NBR => 'Novoberetske',
-            self::XXX => 'XXX'
         };
     }
 
     public function isVillage(): bool
     {
         return match ($this) {
-            self::XXX,
             self::ZLP,
             self::LOZ,
             self::BLY => false,

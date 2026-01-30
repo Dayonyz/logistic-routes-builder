@@ -8,7 +8,7 @@ use Src\Enums\DestinationsEnum;
 
 class DistanceCalculator
 {
-    private array $matrix;
+    protected array $matrix;
 
     /**
      * @throws JsonException|RuntimeException

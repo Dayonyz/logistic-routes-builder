@@ -30,7 +30,7 @@ class DailyRouteReportBuilder
     {
         $routeLegs = [];
 
-        $routeType = $destinations->getRouteType();
+        $routeType = $destinations->getType();
         $destinations = $destinations->toArray();
 
         for ($i = 0; $i < count($destinations) - 1; $i++) {

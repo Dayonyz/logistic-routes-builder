@@ -10,23 +10,24 @@ use Traversable;
 
 class RouteCollection implements IteratorAggregate
 {
-    /** @var RouteDestinationCollection[] $items */
-    private array $items = [];
-    private array $routeTypeCounters = [];
+    /** @var RouteDestinationCollection[] $routes */
+    private array $routes;
+    private array $routeTypeCounters;
 
     public function __construct()
     {
+        $this->routes = [];
         $this->initializeTypeCounters();
     }
 
     /**
      * @throws Exception
      */
-    public function add(RouteDestinationCollection ...$items): void
+    public function add(RouteDestinationCollection ...$destinationCollections): void
     {
-        foreach ($items as $item) {
-            $this->items[$item->getRouteId()] = $item;
-            $this->incRouteTypeCounters($item);
+        foreach ($destinationCollections as $destinationCollection) {
+            $this->routes[$destinationCollection->getRouteId()] = $destinationCollection;
+            $this->incRouteTypeCounters($destinationCollection);
         }
     }
 
@@ -44,40 +45,38 @@ class RouteCollection implements IteratorAggregate
      */
     private function incRouteTypeCounters(RouteDestinationCollection $collection): void
     {
-        $routeType = $collection->getRouteType()->value;
+        $routeType = $collection->getType()->value;
+
         ++$this->routeTypeCounters[$routeType];
     }
 
     /** @return Traversable<RouteDestinationCollection> */
     public function getIterator(): Traversable
     {
-        return new ArrayIterator($this->items);
+        return new ArrayIterator($this->routes);
     }
 
     /** @return RouteDestinationCollection[] */
     public function toArray(): array
     {
-        return $this->items;
+        return $this->routes;
     }
 
     public function getRoutesCount(): int
     {
-        return count($this->items);
+        return count($this->routes);
     }
 
-    public function getRouteType(): ?RouteTypesEnum
+    public function getType(): ?RouteTypesEnum
     {
-        $routeTypeMarker = array_flip(array_filter($this->routeTypeCounters, static fn($item) => $item > 0));
+        $routeTypeMarker = array_filter($this->routeTypeCounters, static fn($item) => $item > 0);
 
-        return match (count($routeTypeMarker)) {
-            1 => RouteTypesEnum::tryFrom(array_shift($routeTypeMarker)),
-            default => null,
-        };
+        return count($routeTypeMarker) !== 1 ? null : RouteTypesEnum::tryFrom(array_keys($routeTypeMarker)[0]);
     }
 
     public function isTyped(): bool
     {
-        return ! is_null($this->getRouteType());
+        return ! is_null($this->getType());
     }
 
     /**
@@ -85,10 +84,10 @@ class RouteCollection implements IteratorAggregate
      */
     public function getRouteById(string $id): RouteDestinationCollection
     {
-        if (! isset($this->items[$id])) {
+        if (! isset($this->routes[$id])) {
             throw new Exception('Route not found with ID: ' . $id);
         }
 
-        return $this->items[$id];
+        return $this->routes[$id];
     }
 }

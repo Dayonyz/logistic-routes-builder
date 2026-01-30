@@ -20,13 +20,30 @@ enum RouteTypesEnum: string
         };
     }
 
-    public function getDestinationsCount(): int
+    /**
+     * @return DestinationsEnum[]
+     */
+    public function getDestinations(): array
     {
         return match ($this) {
-            self::VIL => 16,
-            self::LOZ,
-            self::BLY => 17
+            self::VIL => array_filter(
+                DestinationsEnum::cases(),
+                fn($destination) => ! in_array($destination, [DestinationsEnum::LOZ, DestinationsEnum::BLY])
+            ),
+            self::LOZ => array_filter(
+                DestinationsEnum::cases(),
+                fn($destination) => $destination !== DestinationsEnum::BLY
+            ),
+            self::BLY => array_filter(
+                DestinationsEnum::cases(),
+                fn($destination) => $destination !== DestinationsEnum::LOZ
+            ),
         };
+    }
+
+    public function getDestinationsCount(): int
+    {
+        return count($this->getDestinations());
     }
 
     public function getOdds(): int

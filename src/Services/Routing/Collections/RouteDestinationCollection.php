@@ -42,7 +42,7 @@ class RouteDestinationCollection implements IteratorAggregate
     /**
      * @throws Exception
      */
-    public function getRouteType(): RouteTypesEnum
+    public function getType(): RouteTypesEnum
     {
         $destinations = [];
 
@@ -74,6 +74,6 @@ class RouteDestinationCollection implements IteratorAggregate
 
     public function getRouteId(): string
     {
-        return $this->timeStamp . '_' .implode('_', array_map(fn($item) => $item->value, $this->items));
+        return $this->timeStamp . '_' . implode('_', array_map(fn($item) => $item->value, $this->items));
     }
 }

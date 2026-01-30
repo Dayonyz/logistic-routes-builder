@@ -7,10 +7,10 @@ use Src\Services\Routing\Collections\RouteCollection;
 
 class DailyRouteGenerator
 {
-    private DailyRouteTypesGenerator $routeTypesGenerator;
+    protected DailyRouteTypesGenerator $routeTypesGenerator;
+    protected RandomRoutePicker $randomRoutePicker;
 
-    public function __construct(?DailyRouteTypesGenerator $routeTypesGenerator = null)
-    {
+    public function __construct(?DailyRouteTypesGenerator $routeTypesGenerator = null) {
         $this->routeTypesGenerator = $routeTypesGenerator ?? new DailyRouteTypesGenerator();
     }
 
