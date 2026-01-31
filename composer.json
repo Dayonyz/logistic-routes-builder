@@ -35,7 +35,6 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require-dev": {
-        "mockery/mockery": "^1.6",
         "php-mock/php-mock-phpunit": "^2.13"
     }
 }

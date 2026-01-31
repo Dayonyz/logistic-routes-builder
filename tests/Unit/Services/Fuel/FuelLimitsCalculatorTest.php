@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Services\Fuel;
 
+use ArrayIterator;
 use Exception;
-use Mockery;
 use PHPUnit\Framework\TestCase;
 use Src\Services\Fuel\FuelLimitsCalculator;
 use Src\Services\Fuel\RouteFuelCalculator;
@@ -13,29 +13,26 @@ use Src\Services\Schedule\DailyRouteGenerator;
 
 class FuelLimitsCalculatorTest extends TestCase
 {
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
-    }
-
+    /**
+     * @throws \PHPUnit\Framework\MockObject\Exception
+     */
     public function testForDaysReturnsFuelLimitsDto(): void
     {
-        $mockRoute = Mockery::mock(RouteDestinationCollection::class);
+        $mockRoute = $this->createMock(RouteDestinationCollection::class);
 
-        $mockRouteCollection = Mockery::mock(RouteCollection::class);
-        $mockRouteCollection->shouldReceive('getIterator')
-            ->andReturn(new \ArrayIterator([$mockRoute]));
+        $mockRouteCollection = $this->createMock(RouteCollection::class);
+        $mockRouteCollection->method('getIterator')
+            ->willReturn(new ArrayIterator([$mockRoute]));
 
-        $mockDailyGenerator = Mockery::mock(DailyRouteGenerator::class);
-        $mockDailyGenerator->shouldReceive('generateRoutes')
+        $mockDailyGenerator = $this->createMock(DailyRouteGenerator::class);
+        $mockDailyGenerator->method('generateRoutes')
             ->with(5, true)
-            ->andReturn($mockRouteCollection);
+            ->willReturn($mockRouteCollection);
 
-        $mockCalculator = Mockery::mock(RouteFuelCalculator::class);
-        $mockCalculator->shouldReceive('getFuelByRoute')
+        $mockCalculator = $this->createMock(RouteFuelCalculator::class);
+        $mockCalculator->method('getFuelByRoute')
             ->with($mockRoute)
-            ->andReturn(10);
+            ->willReturn(10);
 
         $calculator = new FuelLimitsCalculator($mockCalculator, $mockDailyGenerator);
 
@@ -45,24 +42,27 @@ class FuelLimitsCalculatorTest extends TestCase
         $this->assertEquals(10, $result->maxFuelLiters);
     }
 
+    /**
+     * @throws \PHPUnit\Framework\MockObject\Exception
+     */
     public function testForDaysCalculatesMinAndMaxFuel(): void
     {
-        $mockRoute = Mockery::mock(RouteDestinationCollection::class);
+        $mockRoute = $this->createMock(RouteDestinationCollection::class);
 
-        $mockRouteCollection = Mockery::mock(RouteCollection::class);
-        $mockRouteCollection->shouldReceive('getIterator')
-            ->andReturn(new \ArrayIterator([$mockRoute]));
+        $mockRouteCollection = $this->createMock(RouteCollection::class);
+        $mockRouteCollection->method('getIterator')
+            ->willReturn(new ArrayIterator([$mockRoute]));
 
-        $mockDailyGenerator = Mockery::mock(DailyRouteGenerator::class);
-        $mockDailyGenerator->shouldReceive('generateRoutes')
-            ->andReturn($mockRouteCollection);
+        $mockDailyGenerator = $this->createMock(DailyRouteGenerator::class);
+        $mockDailyGenerator->method('generateRoutes')
+            ->willReturn($mockRouteCollection);
 
         $fuelSequence = [5, 10, 7];
         $iteration = 0;
 
-        $mockCalculator = Mockery::mock(RouteFuelCalculator::class);
-        $mockCalculator->shouldReceive('getFuelByRoute')
-            ->andReturnUsing(function () use (&$iteration, $fuelSequence, $mockRoute) {
+        $mockCalculator = $this->createMock(RouteFuelCalculator::class);
+        $mockCalculator->method('getFuelByRoute')
+            ->willReturnCallback(function () use (&$iteration, $fuelSequence) {
                 return $fuelSequence[$iteration++];
             });
 
@@ -74,17 +74,20 @@ class FuelLimitsCalculatorTest extends TestCase
         $this->assertEquals(10, $result->maxFuelLiters);
     }
 
+    /**
+     * @throws \PHPUnit\Framework\MockObject\Exception
+     */
     public function testForDaysCatchesExceptionsAndContinues(): void
     {
-        $mockRoute = Mockery::mock(RouteDestinationCollection::class);
+        $mockRoute = $this->createMock(RouteDestinationCollection::class);
 
-        $mockRouteCollection = Mockery::mock(RouteCollection::class);
-        $mockRouteCollection->shouldReceive('getIterator')
-            ->andReturn(new \ArrayIterator([$mockRoute]));
+        $mockRouteCollection = $this->createMock(RouteCollection::class);
+        $mockRouteCollection->method('getIterator')
+            ->willReturn(new ArrayIterator([$mockRoute]));
 
-        $mockDailyGenerator = Mockery::mock(DailyRouteGenerator::class);
-        $mockDailyGenerator->shouldReceive('generateRoutes')
-            ->andReturn($mockRouteCollection);
+        $mockDailyGenerator = $this->createMock(DailyRouteGenerator::class);
+        $mockDailyGenerator->method('generateRoutes')
+            ->willReturn($mockRouteCollection);
 
         $fuelSequence = [
             10,
@@ -93,9 +96,9 @@ class FuelLimitsCalculatorTest extends TestCase
         ];
         $iteration = 0;
 
-        $mockCalculator = Mockery::mock(RouteFuelCalculator::class);
-        $mockCalculator->shouldReceive('getFuelByRoute')
-            ->andReturnUsing(function () use (&$iteration, $fuelSequence, $mockRoute) {
+        $mockCalculator = $this->createMock(RouteFuelCalculator::class);
+        $mockCalculator->method('getFuelByRoute')
+            ->willReturnCallback(function () use (&$iteration, $fuelSequence) {
                 $val = $fuelSequence[$iteration++];
                 if (is_callable($val)) {
                     return $val();
@@ -106,6 +109,7 @@ class FuelLimitsCalculatorTest extends TestCase
         $calculator = new FuelLimitsCalculator($mockCalculator, $mockDailyGenerator);
 
         $this->expectOutputString("Test error\r\n");
+
         $result = $calculator->forDays(1, 3);
 
         $this->assertEquals(10, $result->minFuelLiters);

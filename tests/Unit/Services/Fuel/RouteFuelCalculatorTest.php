@@ -2,33 +2,30 @@
 
 namespace Tests\Unit\Services\Fuel;
 
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use Src\Enums\DestinationsEnum;
 use Src\Services\Distance\DistanceCalculator;
 use Src\Services\Fuel\RouteFuelCalculator;
 use Src\Services\Routing\Collections\RouteDestinationCollection;
-use Mockery;
 
 class RouteFuelCalculatorTest extends TestCase
 {
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
-    }
-
+    /**
+     * @throws Exception
+     */
     public function testGetFuelByRouteCalculatesSum(): void
     {
-        $route = Mockery::mock(RouteDestinationCollection::class);
-        $route->shouldReceive('toArray')->andReturn([
+        $route = $this->createMock(RouteDestinationCollection::class);
+        $route->method('toArray')->willReturn([
             DestinationsEnum::NBR,
             DestinationsEnum::SHU,
             DestinationsEnum::LOZ
         ]);
 
-        $mockCalculator = Mockery::mock(DistanceCalculator::class);
-        $mockCalculator->shouldReceive('getDistanceMatrixCellBetweenDestinations')
-            ->andReturn([
+        $mockCalculator = $this->createMock(DistanceCalculator::class);
+        $mockCalculator->method('getDistanceMatrixCellBetweenDestinations')
+            ->willReturn([
                 'g' => 10,
                 'n' => 5,
                 'b' => 2,
@@ -47,9 +44,9 @@ class RouteFuelCalculatorTest extends TestCase
 
     public function testGetFuelBetweenDestinationsInsideCity(): void
     {
-        $mockCalculator = Mockery::mock(DistanceCalculator::class);
-        $mockCalculator->shouldReceive('getDistanceMatrixCellBetweenDestinations')
-            ->andReturn(['s' => 1]); // движение внутри города
+        $mockCalculator = $this->createMock(DistanceCalculator::class);
+        $mockCalculator->method('getDistanceMatrixCellBetweenDestinations')
+            ->willReturn(['s' => 1]); // движение внутри города
 
         $calculator = new RouteFuelCalculator($mockCalculator);
 
@@ -63,9 +60,9 @@ class RouteFuelCalculatorTest extends TestCase
 
     public function testGetFuelBetweenDestinationsBetweenCities(): void
     {
-        $mockCalculator = Mockery::mock(DistanceCalculator::class);
-        $mockCalculator->shouldReceive('getDistanceMatrixCellBetweenDestinations')
-            ->andReturn([
+        $mockCalculator = $this->createMock(DistanceCalculator::class);
+        $mockCalculator->method('getDistanceMatrixCellBetweenDestinations')
+            ->willReturn([
                 'g' => 10,
                 'n' => 5,
                 'b' => 2
