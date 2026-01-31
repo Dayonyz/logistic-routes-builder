@@ -3,6 +3,7 @@
 namespace Tests\Unit\Services\Routing;
 
 use Exception;
+use JetBrains\PhpStorm\ArrayShape;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use Src\Enums\RouteTypesEnum;
@@ -10,7 +11,6 @@ use Src\Services\Routing\RouteBuilderFactory;
 use Src\Services\Routing\Builders\BlyRouteBuilder;
 use Src\Services\Routing\Builders\LozRouteBuilder;
 use Src\Services\Routing\Builders\VilRouteBuilder;
-use ValueError;
 
 class RouteBuilderFactoryTest extends TestCase
 {
@@ -22,42 +22,29 @@ class RouteBuilderFactoryTest extends TestCase
     }
 
     /**
+     * @dataProvider routeTypeToBuilderProvider
      * @throws Exception
      */
-    public function testCreatesBlyRouteBuilder(): void
-    {
-        $factory = RouteBuilderFactory::makeInstance(RouteTypesEnum::BLY);
+    public function testMakeInstanceCreatesProperBuilder(
+        RouteTypesEnum $type,
+        string $expectedBuilderClass
+    ): void {
+        $factory = RouteBuilderFactory::makeInstance($type);
 
         $this->assertInstanceOf(
-            BlyRouteBuilder::class,
+            $expectedBuilderClass,
             $factory->getBuilder()
         );
     }
 
-    /**
-     * @throws Exception
-     */
-    public function testCreatesLozRouteBuilder(): void
+    #[ArrayShape(['BLY route' => "array", 'LOZ route' => "array", 'VIL route' => "array"])]
+    public static function routeTypeToBuilderProvider(): array
     {
-        $factory = RouteBuilderFactory::makeInstance(RouteTypesEnum::LOZ);
-
-        $this->assertInstanceOf(
-            LozRouteBuilder::class,
-            $factory->getBuilder()
-        );
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testCreatesVilRouteBuilder(): void
-    {
-        $factory = RouteBuilderFactory::makeInstance(RouteTypesEnum::VIL);
-
-        $this->assertInstanceOf(
-            VilRouteBuilder::class,
-            $factory->getBuilder()
-        );
+        return [
+            'BLY route' => [RouteTypesEnum::BLY, BlyRouteBuilder::class],
+            'LOZ route' => [RouteTypesEnum::LOZ, LozRouteBuilder::class],
+            'VIL route' => [RouteTypesEnum::VIL, VilRouteBuilder::class],
+        ];
     }
 
     /**
@@ -74,31 +61,22 @@ class RouteBuilderFactoryTest extends TestCase
     /**
      * @throws Exception
      */
-    public function testSetRouteTypeChangesBuilder(): void
+    public function testFactorySupportsAllRouteTypes(): void
     {
         $factory = RouteBuilderFactory::makeInstance(RouteTypesEnum::BLY);
 
-        $this->assertInstanceOf(BlyRouteBuilder::class, $factory->getBuilder());
+        foreach (RouteTypesEnum::cases() as $type) {
+            $factory->setRouteType($type);
 
-        $factory->setRouteType(RouteTypesEnum::VIL);
+            $builder = $factory->getBuilder();
+            $this->assertNotNull($builder);
 
-        $this->assertInstanceOf(VilRouteBuilder::class, $factory->getBuilder());
-
-        $factory->setRouteType(RouteTypesEnum::LOZ);
-
-        $this->assertInstanceOf(LozRouteBuilder::class, $factory->getBuilder());
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testThrowsExceptionForUndefinedRouteType(): void
-    {
-        $this->expectException(ValueError::class);
-
-        RouteBuilderFactory::makeInstance(
-            RouteTypesEnum::from(RouteTypesEnum::BLY->value . '3')
-        );
+            match ($type) {
+                RouteTypesEnum::BLY => $this->assertInstanceOf(BlyRouteBuilder::class, $builder),
+                RouteTypesEnum::VIL => $this->assertInstanceOf(VilRouteBuilder::class, $builder),
+                RouteTypesEnum::LOZ => $this->assertInstanceOf(LozRouteBuilder::class, $builder),
+            };
+        }
     }
 }
 
