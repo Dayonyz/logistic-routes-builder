@@ -7,6 +7,21 @@ make build
 make install
 ```
 
+### Run tests before
+
+```
+make ssh
+vendor/bin/phpunit --testsuite "Unit Tests"
+vendor/bin/phpunit --testsuite "Integration Tests"
+```
+
+### Unit + Integration
+
+```
+make ssh
+vendor/bin/phpunit
+```
+
 ### Run Application
 
 ```
