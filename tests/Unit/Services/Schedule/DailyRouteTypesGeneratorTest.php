@@ -124,3 +124,4 @@ class DailyRouteTypesGeneratorTest extends TestCase
         $this->assertFalse($generator->test(RouteTypesEnum::VIL, RouteTypesEnum::BLY));
     }
 }
+

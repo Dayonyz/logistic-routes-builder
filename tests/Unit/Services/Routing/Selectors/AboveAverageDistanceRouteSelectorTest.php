@@ -67,3 +67,4 @@ class AboveAverageDistanceRouteSelectorTest extends TestCase
         }
     }
 }
+

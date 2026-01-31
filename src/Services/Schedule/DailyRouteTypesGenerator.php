@@ -106,3 +106,4 @@ class DailyRouteTypesGenerator
         return $routeTypes;
     }
 }
+

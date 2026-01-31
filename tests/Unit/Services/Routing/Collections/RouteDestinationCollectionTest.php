@@ -102,3 +102,4 @@ class RouteDestinationCollectionTest extends TestCase
         $this->assertStringContainsString('kra', $id);
     }
 }
+

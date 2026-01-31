@@ -65,3 +65,4 @@ class DailyRouteGeneratorTest extends TestCase
         }
     }
 }
+

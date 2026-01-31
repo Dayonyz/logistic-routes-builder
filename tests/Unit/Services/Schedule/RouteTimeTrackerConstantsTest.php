@@ -71,3 +71,4 @@ class RouteTimeTrackerConstantsTest extends TestCase
         $this->assertSame(5, IntervalUnitsEnum::MINUTE_STEP->toInt());
     }
 }
+

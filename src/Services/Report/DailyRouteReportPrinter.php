@@ -42,3 +42,4 @@ class DailyRouteReportPrinter
         echo "\r\n";
     }
 }
+

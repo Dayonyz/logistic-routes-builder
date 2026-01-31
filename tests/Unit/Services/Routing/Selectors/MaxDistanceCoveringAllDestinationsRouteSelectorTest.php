@@ -53,3 +53,4 @@ class MaxDistanceCoveringAllDestinationsRouteSelectorTest extends TestCase
         $this->assertSame(2, $result->getRoutesCount());
     }
 }
+

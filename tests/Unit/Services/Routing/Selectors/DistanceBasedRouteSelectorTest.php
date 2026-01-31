@@ -51,3 +51,4 @@ class DistanceBasedRouteSelectorTest extends TestCase
         $this->assertContains(20, $distances);
     }
 }
+

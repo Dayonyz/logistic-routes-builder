@@ -86,3 +86,4 @@ class TestableRouteTimeTracker extends RouteTimeTracker
         return parent::applyFluctuation($minutes);
     }
 }
+

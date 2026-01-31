@@ -60,3 +60,4 @@ class RouteBuilderFactory
         return $this->routeCollectionBuilder;
     }
 }
+

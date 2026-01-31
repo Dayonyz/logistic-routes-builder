@@ -94,3 +94,4 @@ class RouteCollectionsTest extends TestCase
         $route->getType();
     }
 }
+

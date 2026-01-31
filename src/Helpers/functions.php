@@ -4,6 +4,7 @@
  * Permutations of length $n from $items (order matters), without repetitions.
  * Iterates over a given sequence (array of values).
  * @param array<int, mixed> $items
+ * @param int $n
  * @return Generator<int, array<int, mixed>>
  */
 
