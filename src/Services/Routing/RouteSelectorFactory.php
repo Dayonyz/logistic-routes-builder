@@ -53,7 +53,6 @@ class RouteSelectorFactory
         return self::$instance;
     }
 
-
     public function getSelector(): RouteSelector
     {
         return $this->routeSelector;
