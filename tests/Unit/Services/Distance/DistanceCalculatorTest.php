@@ -25,6 +25,7 @@ class DistanceCalculatorTest extends TestCase
     public function testConstructorThrowsExceptionForMissingFile(): void
     {
         $this->expectException(RuntimeException::class);
+
         new DistanceCalculator('/path/to/nonexistent.json');
     }
 
