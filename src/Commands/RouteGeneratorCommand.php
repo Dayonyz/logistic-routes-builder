@@ -36,7 +36,7 @@ class RouteGeneratorCommand extends Command
 
         $daysCount = 0;
 
-        while ((int)$daysCount < 1 || (int)$daysCount > 31) {
+        while ((int)$daysCount < 2 || (int)$daysCount > 31) {
             $daysCount = $helper->ask(
                 $input,
                 $output,
