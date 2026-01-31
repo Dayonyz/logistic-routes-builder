@@ -16,7 +16,6 @@ class DistanceBasedRouteSelectorTest extends TestCase
      */
     public function testCalculateDistancesPopulatesDistancesArray(): void
     {
-        // --- Создаем маршруты ---
         $route1 = new RouteDestinationCollection();
         $route1->add(DestinationsEnum::LOZ);
 

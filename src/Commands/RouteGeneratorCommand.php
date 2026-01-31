@@ -21,6 +21,12 @@ class RouteGeneratorCommand extends Command
     protected static $defaultName = 'app:generate-routes';
     private const PRECISION_DIVISOR = 3;
 
+    public function __construct(
+        private readonly bool $printReports = true
+    ) {
+        parent::__construct();
+    }
+
     /**
      * @throws Exception
      */
@@ -28,11 +34,15 @@ class RouteGeneratorCommand extends Command
     {
         $helper = $this->getHelper('question');
 
-        $daysCount = $helper->ask(
-            $input,
-            $output,
-            new Question('Enter the number of working days in a month: ')
-        );
+        $daysCount = 0;
+
+        while ((int)$daysCount < 1 || (int)$daysCount > 31) {
+            $daysCount = $helper->ask(
+                $input,
+                $output,
+                new Question('Enter the number of working days in a month: ')
+            );
+        }
 
         $output->writeln("Days count: $daysCount");
 
@@ -87,14 +97,15 @@ class RouteGeneratorCommand extends Command
                 $routes = $dailyRouteGenerator->generateRoutes($daysCount);
                 $distanceCalculator = new DistanceCalculator();
                 $routeFuelCalculator = new RouteFuelCalculator();
-                $dailyRouteReportBuilder = new DailyRouteReportBuilder();
+                $timeTracker = new RouteTimeTracker($goodWeatherPercent);
+                $dailyRouteReportBuilder = new DailyRouteReportBuilder($timeTracker);
 
                 /**
                  * @var RouteDestinationCollection $route
                  */
                 foreach ($routes->getIterator() as $route) {
-                    $timeTracker = new RouteTimeTracker($goodWeatherPercent);
-                    $dailyReports[] = $dailyRouteReportBuilder->build($route, $timeTracker);
+                    $timeTracker->resetToDefaults($goodWeatherPercent);
+                    $dailyReports[] = $dailyRouteReportBuilder->build($route);
                     $totalFuel += $routeFuelCalculator->getFuelByRoute($route);
                     $totalDistance += $distanceCalculator->getDistanceBetweenDestinations(...$route->toArray());
                 }
@@ -104,16 +115,18 @@ class RouteGeneratorCommand extends Command
             }
         }
 
-        foreach ($dailyReports as $index => $routeLegs) {
-            DailyRouteReportPrinter::print($index + 1, ...$routeLegs);
+        if ($this->printReports) {
+            foreach ($dailyReports as $index => $routeLegs) {
+                DailyRouteReportPrinter::print($index + 1, ...$routeLegs);
+            }
+
+            echo '__________________________________________________________________________________________________' .
+                '__________' .
+                "\r\n";
+
+            echo 'Total monthly distance: ' . $totalDistance . ' (km)' . "\r\n";
+            echo 'Total monthly fuel consumption: ' . $totalFuel . ' (L)' . "\r\n";
         }
-
-        echo '______________________________________________________________________________________________________' .
-            '______' .
-            "\r\n";
-
-        echo 'Total monthly distance: ' . $totalDistance . ' (km)' . "\r\n";
-        echo 'Total monthly fuel consumption: ' . $totalFuel . ' (L)' . "\r\n";
 
         return Command::SUCCESS;
     }

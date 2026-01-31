@@ -6,19 +6,44 @@ use DateInterval;
 use DateTimeImmutable;
 use Exception;
 use Src\Enums\DestinationsEnum;
+use Src\Enums\IntervalUnitsEnum;
 
 class RouteTimeTracker
 {
-    private DateTimeImmutable $startMovingTime;
-    private DateTimeImmutable $endMovingTime;
-    private DateTimeImmutable $previousEndMovingTime;
-    private bool $isGoodWeather;
-    private DestinationsEnum $from;
-    private DestinationsEnum $to;
+    protected DateTimeImmutable $startMovingTime;
+    protected ?DateTimeImmutable $endMovingTime;
+    protected ?DateTimeImmutable $previousEndMovingTime;
+    protected ?DestinationsEnum $previousTo;
+    protected ?DestinationsEnum $previousFrom;
+    protected bool $isGoodWeather;
+    protected ?DestinationsEnum $from;
+    protected ?DestinationsEnum $to;
     protected int $goodWeatherPercent;
 
+    public const START_TIME_STR = '9:00';
+
+    public const PERCENT_RAND = [
+        'from' => 1,
+        'to' => 100
+    ];
+
+    public const START_TIME_RAND = [
+        'from' => 0,
+        'to' => 9
+    ];
+
+    public const BLY_MOVING_RAND = [
+        'from' => 8,
+        'to' => 18
+    ];
+
+    public const BETWEEN_MOVING_RAND = [
+        'from' => 4,
+        'to' => 13
+    ];
+
     public const GOOD_WEATHER_FL_COEFF = [
-        'plus' => 1.08,
+        'plus' => 1.1,
         'minus' => 0.95
     ];
     public const BAD_WEATHER_FL_COEFF = [
@@ -54,11 +79,25 @@ class RouteTimeTracker
      */
     public function __construct(int $goodWeatherPercent)
     {
+        $this->resetToDefaults($goodWeatherPercent);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function resetToDefaults(int $goodWeatherPercent): void
+    {
         $this->setGoodWeatherPercent($goodWeatherPercent);
         $this->generateWeather();
-        $this->startMovingTime = new DateTimeImmutable('9:00');
-        $this->startMovingTime = $this->startMovingTime->add($this->generateStartMovingInterval());
-        $this->previousEndMovingTime =  new DateTimeImmutable('00:00');
+
+        $this->previousEndMovingTime = null;
+        $this->previousFrom = null;
+        $this->previousTo = null;
+        $this->endMovingTime = null;
+        $this->from = null;
+        $this->to = null;
+
+        $this->setStartMovingTime();
     }
 
     /**
@@ -66,25 +105,11 @@ class RouteTimeTracker
      */
     protected function setGoodWeatherPercent(int $goodWeatherPercent): void
     {
-        if ($goodWeatherPercent < 1 || $goodWeatherPercent > 100) {
+        if ($goodWeatherPercent < static::PERCENT_RAND['from'] || $goodWeatherPercent > static::PERCENT_RAND['to']) {
             throw new Exception('Good weather percents must be the value between 1 and 100.');
         }
 
         $this->goodWeatherPercent = $goodWeatherPercent;
-    }
-
-    public function getStartMovingTime(): DateTimeImmutable
-    {
-        if ($this->from === DestinationsEnum::LOZ && $this->to !== DestinationsEnum::LOZ) {
-            $this->startMovingTime = clone $this->previousEndMovingTime;
-        }
-
-        return $this->startMovingTime;
-    }
-
-    public function getEndMovingTime(): DateTimeImmutable
-    {
-        return $this->endMovingTime;
     }
 
     /**
@@ -92,8 +117,85 @@ class RouteTimeTracker
      */
     protected function generateWeather(): void
     {
-        $randomChoice = random_int(1, 100);
+        $randomChoice = random_int(static::PERCENT_RAND['from'], static::PERCENT_RAND['to']);
         $this->isGoodWeather = $randomChoice <= $this->goodWeatherPercent;
+    }
+
+    public function getStartMovingTime(): DateTimeImmutable
+    {
+        return $this->startMovingTime;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function setStartMovingTime(): void
+    {
+        if ($this->endMovingTime) {
+            $this->startMovingTime = clone $this->endMovingTime->add($this->generateBetweenMovingInterval());
+        } else {
+            $this->startMovingTime = new DateTimeImmutable(static::START_TIME_STR);
+            $this->startMovingTime = $this->startMovingTime->add($this->generateStartMovingInterval());
+        }
+    }
+
+    protected function fixStartMovingTimeByPreviousMoving(): void
+    {
+        if (! $this->previousEndMovingTime && ! $this->previousFrom && ! $this->previousTo) {
+            return;
+        }
+
+        if ($this->from === DestinationsEnum::ZLP && $this->to !== DestinationsEnum::ZLP) {
+            $this->startMovingTime = clone $this->previousEndMovingTime;
+        }
+
+        if ($this->from === DestinationsEnum::ZLP &&
+            $this->to === DestinationsEnum::ZLP &&
+            $this->previousTo === DestinationsEnum::ZLP
+        ) {
+            $this->startMovingTime = clone $this->previousEndMovingTime;
+        }
+
+        if ($this->from === DestinationsEnum::LOZ &&
+            $this->to === DestinationsEnum::LOZ &&
+            $this->previousFrom !== DestinationsEnum::LOZ &&
+            $this->previousTo === DestinationsEnum::LOZ
+        ) {
+            $this->startMovingTime = clone $this->previousEndMovingTime;
+        }
+
+        if ($this->from === DestinationsEnum::LOZ &&
+            $this->to === DestinationsEnum::LOZ &&
+            $this->previousFrom === DestinationsEnum::LOZ &&
+            $this->previousTo === DestinationsEnum::LOZ
+        ) {
+            return;
+        }
+
+        if ($this->from === DestinationsEnum::LOZ &&
+            $this->to !== DestinationsEnum::LOZ &&
+            $this->previousFrom === DestinationsEnum::LOZ &&
+            $this->previousTo === DestinationsEnum::LOZ
+        ) {
+            $this->startMovingTime = clone $this->previousEndMovingTime;
+        }
+    }
+
+    public function getEndMovingTime(): ?DateTimeImmutable
+    {
+        return $this->endMovingTime;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function setEndMovingTime(int $minutes): void
+    {
+        $this->endMovingTime = $this->startMovingTime->add(new DateInterval(
+            IntervalUnitsEnum::PREFIX->value .
+            $minutes .
+            IntervalUnitsEnum::UNIT->value
+        ));
     }
 
     /**
@@ -101,7 +203,21 @@ class RouteTimeTracker
      */
     protected function generateStartMovingInterval(): DateInterval
     {
-        return new DateInterval('PT' . 5*random_int(0, 9) . 'M');
+        return new DateInterval(IntervalUnitsEnum::PREFIX->value .
+            $this->getStartMovingTimeMinutes() .
+            IntervalUnitsEnum::UNIT->value
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function getStartMovingTimeMinutes(): int
+    {
+        return IntervalUnitsEnum::MINUTE_STEP->toInt()*random_int(
+            static::START_TIME_RAND['from'],
+            static::START_TIME_RAND['to']
+        );
     }
 
     /**
@@ -109,7 +225,43 @@ class RouteTimeTracker
      */
     protected function generateBetweenMovingInterval(): DateInterval
     {
-        return new DateInterval('PT' . 5*random_int(4, 13) . 'M');
+        return new DateInterval(IntervalUnitsEnum::PREFIX->value .
+            $this->getBetweenMovingMinutes() .
+            IntervalUnitsEnum::UNIT->value
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function getBetweenMovingMinutes(): int
+    {
+        return IntervalUnitsEnum::MINUTE_STEP->toInt()*random_int(
+            static::BETWEEN_MOVING_RAND['from'],
+            static::BETWEEN_MOVING_RAND['to']
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function generateViaBlyExtraMinutes(): int
+    {
+        return IntervalUnitsEnum::MINUTE_STEP->value*random_int(
+                static::BLY_MOVING_RAND['from'],
+                static::BLY_MOVING_RAND['to']
+            );
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function applyFluctuation(int $movingTime): int
+    {
+        return (int)(round(
+                $movingTime*$this->getFluctuationCoefficient() / IntervalUnitsEnum::MINUTE_STEP->toInt()) *
+            IntervalUnitsEnum::MINUTE_STEP->toInt()
+        );
     }
 
     protected function getSpeedCorrection(string $roadType): int
@@ -130,7 +282,7 @@ class RouteTimeTracker
             return 1;
         }
 
-        $randomChoice = random_int(1, 100);
+        $randomChoice = random_int(static::PERCENT_RAND['from'], static::PERCENT_RAND['to']);
 
         $sign = $this->isGoodWeather ?
             ($randomChoice <= self::GOOD_WEATHER_FL_ODDS ? 'plus' : 'minus') :
@@ -144,7 +296,7 @@ class RouteTimeTracker
     /**
      * @throws Exception
      */
-    public function calculateMovingTime(array $distanceMatrix): void
+    protected function getMovingTimeMinutes(array $distanceMatrix): int
     {
         $movingTime = 0;
 
@@ -152,40 +304,47 @@ class RouteTimeTracker
             $movingTime += $distanceMatrix[$roadQuality] / ($speed + $this->getSpeedCorrection($roadQuality));
         }
 
-        $movingTime = (int)(round($movingTime*$this->getFluctuationCoefficient()*60 / 5) * 5);
-
-        if ($this->to === DestinationsEnum::BLY) {
-            $movingTime += 5*random_int(8, 18);
-        }
-
-        $this->endMovingTime = $this->startMovingTime->add(new DateInterval('PT' . $movingTime . 'M'));
-    }
-
-    public function setDestinations(DestinationsEnum $from, DestinationsEnum $to): void
-    {
-        $this->from = $from;
-        $this->to = $to;
+        return (int)round(
+            $movingTime*60 / IntervalUnitsEnum::MINUTE_STEP->toInt()
+        )*IntervalUnitsEnum::MINUTE_STEP->toInt();
     }
 
     /**
      * @throws Exception
      */
-    public function generateNextStartMovingTime(): void
+    public function calculateMovingTime(array $distanceMatrix): void
     {
-        $this->previousEndMovingTime = clone $this->endMovingTime;
+        $movingTime = $this->getMovingTimeMinutes($distanceMatrix);
 
-        if ($this->from === DestinationsEnum::ZLP && $this->to === DestinationsEnum::ZLP) {
-            $this->startMovingTime = clone $this->endMovingTime;
+        $movingTime = $this->applyFluctuation($movingTime);
+
+        if ($this->to === DestinationsEnum::BLY) {
+            $movingTime += $this->generateViaBlyExtraMinutes();
         }
 
-        if ($this->from !== DestinationsEnum::ZLP && $this->to === DestinationsEnum::ZLP) {
-            $this->startMovingTime = clone $this->endMovingTime;
-        }
+        $this->setEndMovingTime($movingTime);
+    }
 
-        if ($this->from !== DestinationsEnum::LOZ && $this->to === DestinationsEnum::LOZ) {
-            $this->startMovingTime = clone $this->endMovingTime;
-        }
+    /**
+     * @throws Exception
+     */
+    public function setDestinations(DestinationsEnum $from, DestinationsEnum $to): void
+    {
+        $this->savePreviousMoving();
 
-        $this->startMovingTime = clone $this->endMovingTime->add($this->generateBetweenMovingInterval());
+        $this->from = $from;
+        $this->to = $to;
+
+        $this->setStartMovingTime();
+        $this->fixStartMovingTimeByPreviousMoving();
+    }
+
+    protected function savePreviousMoving(): void
+    {
+        if ($this->from && $this->to && $this->endMovingTime) {
+            $this->previousEndMovingTime = clone $this->endMovingTime;
+            $this->previousTo = $this->to;
+            $this->previousFrom = $this->from;
+        }
     }
 }

@@ -12,7 +12,7 @@ use Src\Services\Routing\Collections\RouteDestinationCollection;
 class RandomRoutePickerTest extends TestCase
 {
     /**
-     * Проверяем, что конструктор создает объект и коллекцию маршрутов
+     * We check that the constructor creates an object and a collection of routes
      *
      * @throws Exception
      */
@@ -32,7 +32,7 @@ class RandomRoutePickerTest extends TestCase
     }
 
     /**
-     * Проверяем, что getNextRoute с предыдущим маршрутом избегает пересечений
+     * We check that getNextRoute avoids intersections with the previous route.
      *
      * @throws Exception
      */
@@ -64,14 +64,14 @@ class RandomRoutePickerTest extends TestCase
     public function testRoutesHasIntersectionsIsCalledAndReturnsTrue(): void
     {
         /**
-         * previous маршрут: [MYR]
+         * previous route: [MYR]
          */
         $prev = new RouteDestinationCollection();
         $prev->add(DestinationsEnum::MYR);
 
         /**
-         * 1-й маршрут -> ПЕРЕСЕЧЕНИЕ [MYR]
-         * 2-й маршрут -> БЕЗ пересечения [KRA]
+         * 1-st route -> Intersection [MYR]
+         * 2-nd route -> Without Intersection [KRA]
          */
         $routeWithIntersection = new RouteDestinationCollection();
         $routeWithIntersection->add(DestinationsEnum::MYR);
@@ -80,7 +80,7 @@ class RandomRoutePickerTest extends TestCase
         $routeWithoutIntersection->add(DestinationsEnum::KRA);
 
         /**
-         * Spy-класс
+         * Spy-class
          */
         $picker = new class(
             RouteTypesEnum::VIL,

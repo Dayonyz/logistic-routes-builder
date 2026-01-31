@@ -49,7 +49,6 @@ class RouteTypesEnumTest extends TestCase
         $this->assertNotContains(DestinationsEnum::LOZ, $destinations);
         $this->assertNotContains(DestinationsEnum::BLY, $destinations);
 
-        // Проверяем, что это именно DestinationsEnum
         foreach ($destinations as $destination) {
             $this->assertInstanceOf(DestinationsEnum::class, $destination);
         }
@@ -86,8 +85,7 @@ class RouteTypesEnumTest extends TestCase
      */
     public function testRandomTypeAlwaysReturnsEnum(): void
     {
-        // гоняем много раз — проверяем стабильность
-        for ($i = 0; $i < 100; $i++) {
+        for ($i = 0; $i < 200; $i++) {
             $type = RouteTypesEnum::getRandomType();
 
             $this->assertInstanceOf(RouteTypesEnum::class, $type);

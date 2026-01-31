@@ -97,7 +97,7 @@ class RouteBuilderFactoryTest extends TestCase
         $this->expectException(ValueError::class);
 
         RouteBuilderFactory::makeInstance(
-            RouteTypesEnum::from('INVALID')
+            RouteTypesEnum::from(RouteTypesEnum::BLY->value . '3')
         );
     }
 }

@@ -70,8 +70,11 @@ class DistanceCalculatorDataProviderTest extends TestCase
     /**
      * @dataProvider provideAllTriples
      */
-    public function testDistanceForTriples(DestinationsEnum $first, DestinationsEnum $second, DestinationsEnum $third): void
-    {
+    public function testDistanceForTriples(
+        DestinationsEnum $first,
+        DestinationsEnum $second,
+        DestinationsEnum $third
+    ): void {
         $distance = $this->calculator->getDistanceBetweenDestinations($first, $second, $third);
 
         $this->assertIsInt($distance);

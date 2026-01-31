@@ -13,11 +13,14 @@ class DailyRouteReportBuilder
 {
     private DistanceCalculator $distanceCalculator;
     private RouteFuelCalculator $routeFuelCalculator;
+    private RouteTimeTracker $routeTimeTracker;
 
     public function __construct(
+        RouteTimeTracker $routeTimeTracker,
         ?DistanceCalculator $distanceCalculator = null,
         ?RouteFuelCalculator $routeFuelCalculator = null
     ) {
+        $this->routeTimeTracker = $routeTimeTracker;
         $this->distanceCalculator = $distanceCalculator ?? new DistanceCalculator();
         $this->routeFuelCalculator = $routeFuelCalculator ?? new RouteFuelCalculator();
     }
@@ -26,7 +29,7 @@ class DailyRouteReportBuilder
      * @return RouteLegDto[]
      * @throws Exception
      */
-    public function build(RouteDestinationCollection $destinations, RouteTimeTracker $timeTracker): array
+    public function build(RouteDestinationCollection $destinations): array
     {
         $routeLegs = [];
 
@@ -34,21 +37,22 @@ class DailyRouteReportBuilder
         $destinations = $destinations->toArray();
 
         for ($i = 0; $i < count($destinations) - 1; $i++) {
+            $from = $destinations[$i];
+            $to = $destinations[$i+1];
+
             $distanceMatrixCell = $this->distanceCalculator->getDistanceMatrixCellBetweenDestinations(
-                $destinations[$i],
-                $destinations[$i+1]
+                $from,
+                $to
             );
 
             $name = $destinations[$i]->title() . ' - ' . $destinations[$i+1]->title();
             $distance = $distanceMatrixCell['s'];
 
-            $from = $destinations[$i];
-            $to = $destinations[$i+1];
-            $timeTracker->setDestinations($from, $to);
+            $this->routeTimeTracker->setDestinations($from, $to);
             $fuel = $this->routeFuelCalculator->getFuelBetweenDestinations($from, $to);
-            $departureAt = $timeTracker->getStartMovingTime();
-            $timeTracker->calculateMovingTime($distanceMatrixCell);
-            $arrivalAt = $timeTracker->getEndMovingTime();
+            $departureAt = $this->routeTimeTracker->getStartMovingTime();
+            $this->routeTimeTracker->calculateMovingTime($distanceMatrixCell);
+            $arrivalAt = $this->routeTimeTracker->getEndMovingTime();
 
             $routeLegs[] = new RouteLegDto(
                 $routeType,
@@ -60,8 +64,6 @@ class DailyRouteReportBuilder
                 $distance,
                 $fuel
             );
-
-            $timeTracker->generateNextStartMovingTime();
         }
 
         return $routeLegs;
