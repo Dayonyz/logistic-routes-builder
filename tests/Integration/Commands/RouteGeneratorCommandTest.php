@@ -26,9 +26,7 @@ class RouteGeneratorCommandTest extends TestCase
             '65',   // good weather %
         ]);
 
-        $exitCode = $tester->execute([], [
-            'output' => new NullOutput(),
-        ]);
+        $exitCode = $tester->execute([]);
 
         $this->assertSame(Command::SUCCESS, $exitCode);
     }
