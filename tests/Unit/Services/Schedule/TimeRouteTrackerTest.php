@@ -8,16 +8,16 @@ use Src\Enums\DestinationsEnum;
 use DateTimeImmutable;
 use Exception;
 use Src\Enums\IntervalUnitsEnum;
-use Src\Services\Schedule\RouteTimeTracker;
+use Src\Services\Schedule\TimeRouteTracker;
 
-class RouteTimeTrackerTest extends TestCase
+class TimeRouteTrackerTest extends TestCase
 {
     /**
      * @throws Exception
      */
     public function testResetToDefaultsResetsInternalState(): void
     {
-        $tracker = new TestableRouteTimeTracker(100);
+        $tracker = new TestableTimeRouteTracker(100);
 
         $tracker->setDestinations(
             DestinationsEnum::KRA,
@@ -53,7 +53,7 @@ class RouteTimeTrackerTest extends TestCase
      */
     public function testTrackerCanBeReusedForMultipleDays(): void
     {
-        $tracker = new TestableRouteTimeTracker(100);
+        $tracker = new TestableTimeRouteTracker(100);
 
         $legs = [
             DestinationsEnum::ZLP,
@@ -98,21 +98,21 @@ class RouteTimeTrackerTest extends TestCase
     {
         foreach ([1, 50, 100] as $p) {
             $this->assertInstanceOf(
-                TestableRouteTimeTracker::class,
-                new TestableRouteTimeTracker($p)
+                TestableTimeRouteTracker::class,
+                new TestableTimeRouteTracker($p)
             );
         }
 
         foreach ([0, -1, 101] as $p) {
             $this->expectException(Exception::class);
-            new TestableRouteTimeTracker($p);
+            new TestableTimeRouteTracker($p);
         }
     }
 
     /** @throws Exception */
     public function testStartMovingTimeRange(): void
     {
-        $t = new TestableRouteTimeTracker(50);
+        $t = new TestableTimeRouteTracker(50);
         $time = $t->getStartMovingTime();
 
         $this->assertGreaterThanOrEqual(new DateTimeImmutable('9:00'), $time);
@@ -122,7 +122,7 @@ class RouteTimeTrackerTest extends TestCase
     /** @throws Exception */
     public function testStartIntervalMinutesRange(): void
     {
-        $t = new TestableRouteTimeTracker(50);
+        $t = new TestableTimeRouteTracker(50);
 
         for ($i = 0; $i < 50; $i++) {
             $m = $t->getStartMinutes();
@@ -135,7 +135,7 @@ class RouteTimeTrackerTest extends TestCase
     /** @throws Exception */
     public function testBetweenIntervalRange(): void
     {
-        $t = new TestableRouteTimeTracker(50);
+        $t = new TestableTimeRouteTracker(50);
 
         for ($i = 0; $i < 50; $i++) {
             $m = $t->getBetweenMinutes();
@@ -148,7 +148,7 @@ class RouteTimeTrackerTest extends TestCase
     /** @throws Exception */
     public function testViaBlyExtraMinutes(): void
     {
-        $t = new TestableRouteTimeTracker(50);
+        $t = new TestableTimeRouteTracker(50);
 
         for ($i = 0; $i < 50; $i++) {
             $m = $t->getViaBlyMinutes();
@@ -161,7 +161,7 @@ class RouteTimeTrackerTest extends TestCase
     /** @throws Exception */
     public function testSpeedCorrection(): void
     {
-        $tracker = new TestableRouteTimeTracker(100);
+        $tracker = new TestableTimeRouteTracker(100);
         $tracker->isGoodWeather = true;
 
         $this->assertSame(10, $tracker->speedCorrection('g'));
@@ -178,7 +178,7 @@ class RouteTimeTrackerTest extends TestCase
     /** @throws Exception */
     public function testFluctuationCoefficient(): void
     {
-        $t = new TestableRouteTimeTracker(100);
+        $t = new TestableTimeRouteTracker(100);
         $t->isGoodWeather = true;
         $t->setDestinations(DestinationsEnum::LOZ, DestinationsEnum::BLY);
 
@@ -191,7 +191,7 @@ class RouteTimeTrackerTest extends TestCase
     /** @throws Exception */
     public function testMovingTimeCalculation(): void
     {
-        $t = new TestableRouteTimeTracker(100);
+        $t = new TestableTimeRouteTracker(100);
         $t->setDestinations(DestinationsEnum::KRA, DestinationsEnum::BLY);
 
         $minutes = $t->movingMinutes([
@@ -207,7 +207,7 @@ class RouteTimeTrackerTest extends TestCase
     /** @throws Exception */
     public function testFullCycleLikeDailyRouteBuilder(): void
     {
-        $t = new TestableRouteTimeTracker(100);
+        $t = new TestableTimeRouteTracker(100);
 
         $legs = [
             DestinationsEnum::ZLP,
@@ -237,7 +237,7 @@ class RouteTimeTrackerTest extends TestCase
      */
     public function testGenerateStartInterval(): void
     {
-        $tracker = new TestableRouteTimeTracker(100);
+        $tracker = new TestableTimeRouteTracker(100);
 
         $interval = $tracker->generateStartInterval();
 
@@ -247,11 +247,11 @@ class RouteTimeTrackerTest extends TestCase
 
         $this->assertSame(0, $interval->h);
         $this->assertGreaterThanOrEqual(
-            IntervalUnitsEnum::MINUTE_STEP->toInt() * RouteTimeTracker::START_TIME_RAND['from'],
+            IntervalUnitsEnum::MINUTE_STEP->toInt() * TimeRouteTracker::START_TIME_RAND['from'],
             $minutes
         );
         $this->assertLessThanOrEqual(
-            IntervalUnitsEnum::MINUTE_STEP->toInt() * RouteTimeTracker::START_TIME_RAND['to'],
+            IntervalUnitsEnum::MINUTE_STEP->toInt() * TimeRouteTracker::START_TIME_RAND['to'],
             $minutes
         );
     }
@@ -261,7 +261,7 @@ class RouteTimeTrackerTest extends TestCase
      */
     public function testGenerateBetweenInterval(): void
     {
-        $tracker = new TestableRouteTimeTracker(100);
+        $tracker = new TestableTimeRouteTracker(100);
 
         $interval = $tracker->generateBetweenInterval();
 
@@ -270,11 +270,11 @@ class RouteTimeTrackerTest extends TestCase
         $minutes = $interval->h * 60 + $interval->i;
 
         $this->assertGreaterThanOrEqual(
-            IntervalUnitsEnum::MINUTE_STEP->toInt() * RouteTimeTracker::BETWEEN_MOVING_RAND['from'],
+            IntervalUnitsEnum::MINUTE_STEP->toInt() * TimeRouteTracker::BETWEEN_MOVING_RAND['from'],
             $minutes
         );
         $this->assertLessThanOrEqual(
-            IntervalUnitsEnum::MINUTE_STEP->toInt() * RouteTimeTracker::BETWEEN_MOVING_RAND['to'],
+            IntervalUnitsEnum::MINUTE_STEP->toInt() * TimeRouteTracker::BETWEEN_MOVING_RAND['to'],
             $minutes
         );
     }
@@ -284,7 +284,7 @@ class RouteTimeTrackerTest extends TestCase
      */
     public function testNotApplyFluctuationForZlp(): void
     {
-        $tracker = new TestableRouteTimeTracker(100);
+        $tracker = new TestableTimeRouteTracker(100);
         $tracker->from = DestinationsEnum::ZLP;
         $tracker->to   = DestinationsEnum::ZLP;
 
@@ -298,7 +298,7 @@ class RouteTimeTrackerTest extends TestCase
      */
     public function testApplyFluctAlwaysRoundedToStep(): void
     {
-        $tracker = new TestableRouteTimeTracker(100);
+        $tracker = new TestableTimeRouteTracker(100);
         $tracker->from = DestinationsEnum::KRA;
         $tracker->to   = DestinationsEnum::BLY;
 
@@ -320,12 +320,12 @@ class RouteTimeTrackerTest extends TestCase
         $step = IntervalUnitsEnum::MINUTE_STEP->toInt();
 
         $coefficients = array_merge(
-            RouteTimeTracker::GOOD_WEATHER_FL_COEFF,
-            RouteTimeTracker::BAD_WEATHER_FL_COEFF
+            TimeRouteTracker::GOOD_WEATHER_FL_COEFF,
+            TimeRouteTracker::BAD_WEATHER_FL_COEFF
         );
 
         foreach ($coefficients as $label => $coeff) {
-            $tracker = new DeterministicRouteTimeTracker(100, $coeff);
+            $tracker = new DeterministicTimeRouteTracker(100, $coeff);
             $tracker->from = DestinationsEnum::KRA;
             $tracker->to   = DestinationsEnum::BLY;
 

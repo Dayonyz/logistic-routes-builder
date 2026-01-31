@@ -31,8 +31,7 @@ class RandomRoutePicker
     public function getNextRoute(
         ?RouteDestinationCollection $prev = null,
         $scipRestrictions = false
-    ): RouteDestinationCollection
-    {
+    ): RouteDestinationCollection {
         if (is_null($prev)) {
             return $this->getRandomRoute();
         } else {

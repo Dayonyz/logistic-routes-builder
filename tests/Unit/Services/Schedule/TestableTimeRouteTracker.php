@@ -4,10 +4,10 @@ namespace Tests\Unit\Services\Schedule;
 
 use DateInterval;
 use Exception;
-use Src\Services\Schedule\RouteTimeTracker;
+use Src\Services\Schedule\TimeRouteTracker;
 use Src\Enums\DestinationsEnum;
 
-class TestableRouteTimeTracker extends RouteTimeTracker
+class TestableTimeRouteTracker extends TimeRouteTracker
 {
     public bool $isGoodWeather;
     public ?DestinationsEnum $from;

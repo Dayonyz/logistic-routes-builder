@@ -10,7 +10,7 @@ use Src\Services\Report\DailyRouteReportBuilder;
 use Src\Services\Report\DailyRouteReportPrinter;
 use Src\Services\Routing\Collections\RouteDestinationCollection;
 use Src\Services\Schedule\DailyRouteGenerator;
-use Src\Services\Schedule\RouteTimeTracker;
+use Src\Services\Schedule\TimeRouteTracker;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -96,7 +96,7 @@ class RouteGeneratorCommand extends Command
                 $routes = $dailyRouteGenerator->generateRoutes($daysCount);
                 $distanceCalculator = new DistanceCalculator();
                 $routeFuelCalculator = new RouteFuelCalculator();
-                $timeTracker = new RouteTimeTracker($goodWeatherPercent);
+                $timeTracker = new TimeRouteTracker($goodWeatherPercent);
                 $dailyRouteReportBuilder = new DailyRouteReportBuilder($timeTracker);
 
                 /**

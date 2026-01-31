@@ -8,7 +8,7 @@ use Exception;
 use Src\Enums\DestinationsEnum;
 use Src\Enums\IntervalUnitsEnum;
 
-class RouteTimeTracker
+class TimeRouteTracker
 {
     protected DateTimeImmutable $startMovingTime;
     protected ?DateTimeImmutable $endMovingTime;

@@ -9,7 +9,7 @@ use Src\Enums\DestinationsEnum;
 use Src\Services\Report\DailyRouteReportBuilder;
 use Src\Services\Routing\Collections\RouteDestinationCollection;
 use Src\Services\Schedule\DailyRouteGenerator;
-use Tests\Unit\Services\Schedule\DeterministicRouteTimeTracker;
+use Tests\Unit\Services\Schedule\DeterministicTimeRouteTracker;
 
 final class DailyRouteReportBuilderTest extends TestCase
 {
@@ -22,7 +22,7 @@ final class DailyRouteReportBuilderTest extends TestCase
 
         $routes = $dailyRouteGenerator->generateRoutes(2);
 
-        $routeTimeTracker = new DeterministicRouteTimeTracker(
+        $routeTimeTracker = new DeterministicTimeRouteTracker(
             goodWeatherPercent: 100,
             fluctuation: 1.0
         );

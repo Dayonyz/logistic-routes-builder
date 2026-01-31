@@ -7,17 +7,17 @@ use Src\Services\Distance\DistanceCalculator;
 use Src\Services\Fuel\RouteFuelCalculator;
 use Src\Services\Report\Dto\RouteLegDto;
 use Src\Services\Routing\Collections\RouteDestinationCollection;
-use Src\Services\Schedule\RouteTimeTracker;
+use Src\Services\Schedule\TimeRouteTracker;
 
 class DailyRouteReportBuilder
 {
     private DistanceCalculator $distanceCalculator;
     private RouteFuelCalculator $routeFuelCalculator;
-    private RouteTimeTracker $routeTimeTracker;
+    private TimeRouteTracker $routeTimeTracker;
 
     public function __construct(
-        RouteTimeTracker $routeTimeTracker,
-        ?DistanceCalculator $distanceCalculator = null,
+        TimeRouteTracker     $routeTimeTracker,
+        ?DistanceCalculator  $distanceCalculator = null,
         ?RouteFuelCalculator $routeFuelCalculator = null
     ) {
         $this->routeTimeTracker = $routeTimeTracker;

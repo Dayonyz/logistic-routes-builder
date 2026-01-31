@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Services\Schedule;
 
-class DeterministicRouteTimeTracker extends TestableRouteTimeTracker
+class DeterministicTimeRouteTracker extends TestableTimeRouteTracker
 {
     private float $fluctuation;
 
